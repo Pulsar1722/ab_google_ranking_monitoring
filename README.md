@@ -1,0 +1,2 @@
+# ab_google_ranking_monitoring
+指定した検索ワードにおける、あるページのGoogle検索ランキングが何位かを確認するアプリ

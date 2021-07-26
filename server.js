@@ -4,6 +4,7 @@
 const CRON_PERIOD_GOOGLE_SEARCH = "0 0 */1 * *"; //cronによるGoogle検索の周期(cronフォーマット)
 const CONFIG_JSON_FILENAME = "./config.json" //設定ファイルの(server.jsから見た)相対パス
 const GOOGLER_FILENAME = "./googler" //Google検索を行うPythonスクリプト
+const GOOGLER_CALL_INTERVAL_MS = 3000 //Google検索を行うインターバル(単位ms)
 let confObj = null; //設定ファイルから読みだした値のオブジェクト
 
 //共通パラメータ
@@ -87,7 +88,7 @@ function surveyGoogleRanking(searchWords, searchUrl) {
     let searchResultList = [];
 
     //検索ワード毎に検索順位を調査
-    searchWords.forEach((searchWord) => {
+    searchWords.forEach(async (searchWord) => {
         //検索キーワードでgoogle検索
         let rank = -1;
 
@@ -108,6 +109,9 @@ function surveyGoogleRanking(searchWords, searchUrl) {
 
         printLog(`${searchWord}: rank:${rank}`);
         searchResultList.push(new SearchResult(searchWord, rank));
+
+        //連続でGoogle検索クエリを投げないようにする
+        await sleep(GOOGLER_CALL_INTERVAL_MS);
     });
 
     return searchResultList;
@@ -187,3 +191,10 @@ function readJsonConfigFile(jsonFilePath) {
 
     return jsonObj;
 }
+
+/**
+ * スリープ関数(awaitで待ち受ける必要あり)
+ * @param {Number} msec -待機時間(ms) 
+ * @returns none(Promise型のオブジェクトを返すけど別に重要じゃない)
+ */
+const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));

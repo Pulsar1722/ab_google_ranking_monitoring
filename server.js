@@ -76,7 +76,7 @@ function monitorGoogleRankingHandler() {
     }
 
     //googlerバージョンをログに残す
-    printlog("googler version: " + execSync(`${GOOGLER_CMD} -v`));
+    printLog("googler version: " + execSync(`${GOOGLER_CMD} -v`));
 
     //Google検索調査(foreachだと非同期にループを実行してしまい、クエリが連続実行されるため、for文を用いる)
     //foreachにも同期実行的なやつをよこせ！！！

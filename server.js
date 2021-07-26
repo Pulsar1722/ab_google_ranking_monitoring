@@ -84,9 +84,9 @@ function monitorGoogleRankingHandler() {
  * @return {SearchResult} 検索結果の配列(rankの値は、見つからなかった場合は最大検索順位+1の値、エラー発生の場合は-1の値が入る)
  */
 function surveyGoogleRanking(searchWords, searchUrl) {
+    let searchResultList = [];
 
-    let searchResultList = null;
-
+    //検索ワード毎に検索順位を調査
     searchWords.forEach((searchWord) => {
         //検索キーワードでgoogle検索
         let rank = -1;

@@ -2,8 +2,8 @@
 
 //各種パラメータ
 const CRON_PERIOD_GOOGLE_SEARCH = "0 0 */1 * *"; //cronによるGoogle検索の周期(cronフォーマット)
-const CONFIG_JSON_FILENAME = "./config.json" //設定ファイルの(server.jsから見た)相対パス
-const GOOGLER_FILENAME = "./googler" //Google検索を行うPythonスクリプト
+const CONFIG_JSON_FILENAME = "./config.json"; //設定ファイルの(server.jsから見た)相対パス
+const GOOGLER_FILENAME = "./googler"; //Google検索を行うPythonスクリプト
 const GOOGLER_CALL_INTERVAL_MS = 3000 //Google検索を行うインターバル(単位ms)
 let confObj = null; //設定ファイルから読みだした値のオブジェクト
 
@@ -69,13 +69,16 @@ function monitorGoogleRankingHandler() {
         return;
     }
 
-    //Google検索調査
-    confObj.rank_monitored_searches.forEach((searchObj) => {
+    //Google検索調査(foreachだと非同期にループを実行してしまい、クエリが連続実行されるため、for文を用いる)
+    //foreachにも同期実行的なやつをよこせ！！！
+    for (let i = 0; i < searchWords.length; i++) {
+        let searchObj = confObj.rank_monitored_searches[i];
+
         //検索結果取得
         let searchResultList = surveyGoogleRanking(searchObj.search_words, searchObj.url);
         //検索結果記録
         exportSearchResult(searchResultList);
-    });
+    }
 }
 
 /**
@@ -84,18 +87,21 @@ function monitorGoogleRankingHandler() {
  * @param {string} searchUrl -調査対象ページのURL(部分一致)
  * @return {SearchResult} 検索結果の配列(rankの値は、見つからなかった場合は最大検索順位+1の値、エラー発生の場合は-1の値が入る)
  */
-function surveyGoogleRanking(searchWords, searchUrl) {
+async function surveyGoogleRanking(searchWords, searchUrl) {
     let searchResultList = [];
 
-    //検索ワード毎に検索順位を調査
-    searchWords.forEach(async (searchWord) => {
-        //検索キーワードでgoogle検索
-        let rank = -1;
+    //検索ワード毎に検索順位を調査(foreachだと非同期にループを実行してしまい、クエリが連続実行されるため、for文を用いる)
+    for (let i = 0; i < searchWords.length; i++) {
+        let searchWord = searchWords[i];
+        let rank = -1; //検索順位
 
         try {
-            const stdoutJson = execSync(`${GOOGLER_FILENAME} ${searchWord} -n ${confObj.max_search_rank} --json`); //googler実行(json形式で標準出力)
+            /**googlerを実行し、json形式で検索結果を取得 */
+            const stdoutJson = execSync(`${GOOGLER_FILENAME} ${searchWord} -n ${confObj.max_search_rank} --json`);
             const searchResultList = JSON.parse(stdoutJson);
-            rank = searchResultList.findIndex(result => result.url.includes(searchUrl)); //出力されるjsonの"url"プロパティを検索し、配列の何番目に含まれているか探す
+
+            /**取得したjsonの"url"プロパティを検索し、json配列の何番目に含まれているか探す*/
+            rank = searchResultList.findIndex(result => result.url.includes(searchUrl));
             if (rank === -1) {
                 //findIndex()にて見つからなかった場合、最大検索順位の+1の値を入れる
                 rank = confObj.max_search_rank + 1;
@@ -112,7 +118,7 @@ function surveyGoogleRanking(searchWords, searchUrl) {
 
         //連続でGoogle検索クエリを投げないようにする
         await sleep(GOOGLER_CALL_INTERVAL_MS);
-    });
+    };
 
     return searchResultList;
 }

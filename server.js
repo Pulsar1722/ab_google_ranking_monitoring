@@ -71,7 +71,7 @@ function monitorGoogleRankingHandler() {
 
     //Google検索調査(foreachだと非同期にループを実行してしまい、クエリが連続実行されるため、for文を用いる)
     //foreachにも同期実行的なやつをよこせ！！！
-    for (let i = 0; i < searchWords.length; i++) {
+    for (let i = 0; i < confObj.rank_monitored_searches.length; i++) {
         let searchObj = confObj.rank_monitored_searches[i];
 
         //検索結果取得

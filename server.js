@@ -49,7 +49,7 @@ function main() {
     printLog(`AppVersion: ${APP_VERSION.major}.${APP_VERSION.minor}.${APP_VERSION.revision}`);
 
     //とりあえずの実行確認用
-    monitorGoogleRankingHandler();
+    //monitorGoogleRankingHandler();
 
     try {
         //Google検索順位調査の周期実行

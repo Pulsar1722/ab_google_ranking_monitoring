@@ -30,6 +30,12 @@ const cron = require('node-cron');
 const { execSync } = require('child_process')
 require('date-utils');
 
+/**
+ * スリープ関数(awaitで待ち受ける必要あり)
+ * @param {Number} msec -待機時間(ms) 
+ * @returns none(Promise型のオブジェクトを返すけど別に重要じゃない)
+ */
+const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));
 
 //このファイルがメインモジュールかの確認に用いるらしい
 if (require.main === module) {
@@ -197,10 +203,3 @@ function readJsonConfigFile(jsonFilePath) {
 
     return jsonObj;
 }
-
-/**
- * スリープ関数(awaitで待ち受ける必要あり)
- * @param {Number} msec -待機時間(ms) 
- * @returns none(Promise型のオブジェクトを返すけど別に重要じゃない)
- */
-const sleep = msec => new Promise(resolve => setTimeout(resolve, msec));

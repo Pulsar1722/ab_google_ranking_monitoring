@@ -3,7 +3,7 @@
 //各種パラメータ
 const CRON_PERIOD_GOOGLE_SEARCH = "0 0 */1 * *"; //cronによるGoogle検索の周期(cronフォーマット)
 const CONFIG_JSON_FILENAME = "./config.json"; //設定ファイルの(server.jsから見た)相対パス
-const GOOGLER_FILENAME = "./googler"; //Google検索を行うPythonスクリプト
+const GOOGLER_CMD = "googler"; //Google検索を行うスクリプトの呼び出し文字列
 const GOOGLER_CALL_INTERVAL_MS = 3000 //Google検索を行うインターバル(単位ms)
 let confObj = null; //設定ファイルから読みだした値のオブジェクト
 
@@ -75,6 +75,9 @@ function monitorGoogleRankingHandler() {
         return;
     }
 
+    //googlerバージョンをログに残す
+    printlog("googler version: " + execSync(`${GOOGLER_CMD} -v`));
+
     //Google検索調査(foreachだと非同期にループを実行してしまい、クエリが連続実行されるため、for文を用いる)
     //foreachにも同期実行的なやつをよこせ！！！
     for (let i = 0; i < confObj.rank_monitored_searches.length; i++) {
@@ -103,7 +106,7 @@ async function surveyGoogleRanking(searchWords, searchUrl) {
 
         try {
             /**googlerを実行し、json形式で検索結果を取得 */
-            const stdoutJson = execSync(`${GOOGLER_FILENAME} ${searchWord} -n ${confObj.max_search_rank} --json`);
+            const stdoutJson = execSync(`${GOOGLER_CMD} ${searchWord} -n ${confObj.max_search_rank} --json`);
             const searchResultList = JSON.parse(stdoutJson);
 
             /**取得したjsonの"url"プロパティを検索し、json配列の何番目に含まれているか探す*/

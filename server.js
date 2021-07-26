@@ -1,7 +1,7 @@
 'use strict';
 
 //各種パラメータ
-const CRON_PERIOD_GOOGLE_SEARCH = "0 0 */1 * *"; //cronによるGoogle検索の周期(cronフォーマット)
+const CRON_PERIOD_GOOGLE_SEARCH_UTC = "0 15 */1 * *"; //cronによるGoogle検索の周期(cronフォーマット) (UTC時間)
 const CONFIG_JSON_FILENAME = "./config.json"; //設定ファイルの(server.jsから見た)相対パス
 const GOOGLER_CMD = "googler"; //Google検索を行うスクリプトの呼び出し文字列
 const GOOGLER_CALL_INTERVAL_MS = 3000 //Google検索を行うインターバル(単位ms)
@@ -53,8 +53,8 @@ function main() {
 
     try {
         //Google検索順位調査の周期実行
-        cron.schedule(CRON_PERIOD_GOOGLE_SEARCH, () => {
-            printLog(new Date().toFormat(`YYYY/MM/DD/ HH:24MI:SS`));
+        cron.schedule(CRON_PERIOD_GOOGLE_SEARCH_UTC, () => {
+            printLogTimestamp_JST();
             monitorGoogleRankingHandler();
         });
     } catch (error) {
@@ -158,6 +158,15 @@ function printLog(logstr) {
  */
 function printErrLog(logstr) {
     console.error(`<${APP_NAME}> ${logstr}`);
+}
+
+/**
+ * 現在時刻をタイムスタンプとしてログに出力する(JST形式)
+ * @return none
+ */
+function printLogTimestamp_JST() {
+    let time = new Date().toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+    console.log(`[JST] ${time}`);
 }
 
 /**

@@ -105,6 +105,7 @@ dist
 
 # config file
 config.json
+credit-gsheet.json
 
 # JSDoc
 out/

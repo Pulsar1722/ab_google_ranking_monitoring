@@ -72,7 +72,7 @@ function main() {
 /**
  * Google検索、及び結果の記録を実施する
  */
-function monitorGoogleRankingHandler() {
+async function monitorGoogleRankingHandler() {
     //タイムスタンプ出力
     let recordDateTime = DateTime.now().setZone('Asia/Tokyo');
     printLog(recordDateTime.toISO());
@@ -81,7 +81,7 @@ function monitorGoogleRankingHandler() {
     printLog("googler version: " + execSync(`${GOOGLER_CMD} -v`));
 
     //設定ファイル読み込み
-    confObj = readJsonConfigFile(CONFIG_JSON_FILENAME);
+    confObj = await readJsonConfigFile(CONFIG_JSON_FILENAME);
     if (confObj === null) {
         //設定ファイルを正常に読み出せなかった場合
         printErrLog(`readJsonConfigFile(${CONFIG_JSON_FILENAME}) failed.`);
@@ -94,9 +94,9 @@ function monitorGoogleRankingHandler() {
         let searchObj = confObj.rank_monitored_searches[i];
 
         //検索結果取得
-        let searchResultList = surveyGoogleRanking(searchObj.search_words, searchObj.url);
+        let searchResultList = await surveyGoogleRanking(searchObj.search_words, searchObj.url);
         //検索結果記録
-        recordSearchResult(searchResultList, i, recordDateTime);
+        await recordSearchResult(searchResultList, i, recordDateTime);
     }
 }
 
